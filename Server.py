@@ -1,31 +1,71 @@
 #!/usr/bin/env python3
-#https://realpython.com/python-sockets/
 import socket
 
-HOST = '127.0.0.1'  # Indirizzo dell'interfaccia standard di loopback (localhost)
-PORT = 65432        # Porta di ascolto, la lista di quelle utilizzabili parte da >1023)
+#Dichiarazione indirizzo e porta server
+SERVER_ADDRESS = '127.0.0.1'
+SERVER_PORT = 22224
 
-s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock_listen = socket.socket()
+sock_listen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock_listen.bind((SERVER_ADDRESS, SERVER_PORT))
+sock_listen.listen(5)
+print("Server in ascolto su %s." % str((SERVER_ADDRESS, SERVER_PORT)))
 
-# Optionale: permette di riavviare subito il codice,
-# altrimenti bisognerebbe aspettare 2-4 minuti prima di poter riutilizzare(bindare) la stessa porta
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+while True:
+    #Connessione col Client
+    sock_service, addr_client = sock_listen.accept()
+    print("\nConnessione ricevuta da " + str(addr_client))
+    print("\nAspetto di ricevere i dati ")
+    contConn = 0
 
-s.bind((HOST, PORT))
-s.listen()
-print("[*] In ascolto su %s:%d" % (HOST, PORT))
-clientsocket, address = s.accept()
-with clientsocket as cs:
-    print('Connessione da', address)
+    #Ricezione dati
     while True:
-        dati = cs.recv(1024)
-        dati.decode()
+        dati = sock_service.recv(2048)
+        contConn += 1
         if not dati:
+            print("Fine dati dal client. Reset")
             break
+        
+        #Decodifica dati
         dati = dati.decode()
-        print("Ricevuto '%s' dal client" % dati)
-        dati = "Ciao, " + str(address) + ". Ho ricevuto questo: '" + dati + "'"
-        dati = dati.encode()
-        # Invia i dati modificati al client
-        cs.send(dati)
-        print('Inviato al client:', dati)
+        print("Ricevuto: '%s'" % dati)
+        if dati == '0':
+            print("Chiudo la connessione con " + str(addr_client))
+            break
+
+        dati = dati.split(";")  # operatore;primo numero;secondo numero -> [piu][primo numero][secondo numero]
+        risposta = str()
+
+        #Verifica dell'operatore e successivamente dei numeri
+        if dati[0] == "piu" or dati[0] == "meno" or dati[0] == "per" or dati[0] == "diviso":
+            try:
+                dati[1] = int(dati[1])
+                dati[2] = int(dati[2])
+            except ValueError:
+                print("ValueError")
+                risposta = "Non hai inserito i numeri correttamente."
+
+            if risposta == "":  #Valori corretti
+                risultato = int()
+
+                #Calcolo dell'operazione
+                if dati[0] == "piu":
+                    risultato = dati[1] + dati[2]
+                elif dati[0] == "meno":
+                    risultato = dati[1] - dati[2]
+                elif dati[0] == "per":
+                    risultato = dati[1] * dati[2]
+                else:
+                    risultato = dati[1] / dati[2]
+
+                #Costruzione stringa
+                risposta = "Il risultato dell'operazione " + \
+                    str(dati[0]) + " tra " + str(dati[1]) + " e " + \
+                    str(dati[2]) + " è uguale a " + str(risultato) + "."
+        else:
+            risposta = "Operazione non valida."
+
+        risposta = risposta.encode()
+        sock_service.send(risposta)
+
+    sock_service.close()
