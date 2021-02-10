@@ -35,7 +35,7 @@ def riceviComandi(socket):
                     dati[2] = int(dati[2])
                 except ValueError:
                     print("ValueError")
-                    risposta = "Non hai inserito i numeri correttamente."
+                    risposta = "Errore inserimento numeri."
 
                 if risposta == "":  #Valori corretti
                     risultato = int()
