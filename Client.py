@@ -16,7 +16,7 @@ def inviaComandi(socket):
             print("\nOkay. Exit")
             break
         if not dati:
-            print("Non puoi inviare una stringa vuota!")
+            print("Errore nella stringa")
             continue
         if dati == 'ko':
             print("Chiudo la connessione con il server!")
