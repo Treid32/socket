@@ -2,10 +2,11 @@
 
 import socket
 
+#Dichiarazione indirizzo e porta server
 SERVER_ADDRESS = '127.0.0.1'
 SERVER_PORT = 22224
 
-
+#Funzione per il controllo dei dati
 def inviaComandi(socket):
     while True:
         try:
@@ -36,7 +37,7 @@ def inviaComandi(socket):
         print("Ricevuto dal server:")
         print(dati + '\n')
 
-
+#Funzione per verificare la connessione
 def connessioneServer(address, port):
     sock_service = socket.socket()
     sock_service.connect((address, port))
