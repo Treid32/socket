@@ -2,13 +2,13 @@
 import socket
 import threading
 
+#Dichiarazione indirizzo e porta server
 SERVER_ADDRESS = '127.0.0.1'
-
 SERVER_PORT = 22224
 
-
+#Funzione per verificare i dati
 def riceviComandi(sock_service, addr_client):
-    print("\nConnessione ricevuta da " + str(addr_client))
+    print("\nConnessione ricevuta da " + str(addr_client))          #Connessione col Client
     while True:
         dati = sock_service.recv(2048)
         if not dati:
@@ -16,7 +16,7 @@ def riceviComandi(sock_service, addr_client):
             break
 
         dati = dati.decode()
-        print("Ricevuto: '%s'" % dati)
+        print("Ricevuto: '%s'" % dati)                              #Ricezione e decodifica dati
         if dati == '0':
             print("Chiudo la connessione con " + str(addr_client))
             break
@@ -70,7 +70,7 @@ def riceviConnessioni(socket):
             print("Errore avvio del Thread.")
             socket.close()
 
-
+#Funzione di avvio Server
 def avviaServer(address, port):
     sock_listen = socket.socket()
     sock_listen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
